@@ -28,15 +28,15 @@ const client = new MongoClient(uri, {
 });
 
 // Custom Middlwares for JWT
-const verifyToken = async(req, res, next) => {
+const verifyToken = async (req, res, next) => {
     const token = req?.cookies?.token;
 
-    if(!token){
-        return res.status(401).send({ message : 'UnAuthorized Access'})
+    if (!token) {
+        return res.status(401).send({ message: 'UnAuthorized Access' })
     }
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-        if(err){
-            return res.status(401).send({ message: 'UnAuthorized Access' } )
+        if (err) {
+            return res.status(401).send({ message: 'UnAuthorized Access' })
         }
         req.user = decoded;
         next()
@@ -51,46 +51,55 @@ async function run() {
         const commentsCollection = client.db('blogDB').collection('comments');
 
         // Auth Related Apis 
-        app.post('/jwt', async(req, res) => {
+        app.post('/jwt', async (req, res) => {
             const user = req.body;
-            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1hr'})
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1hr' })
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: true,
                 sameSite: 'none'
             })
-            .send({ success: true });
+                .send({ success: true });
         })
-        
-        app.post('/logout', async(req, res) => {
+
+        app.post('/logout', async (req, res) => {
             const user = req.body;
-            res.clearCookie('token', { maxAge: 0}).send({ success: true })
+            res.clearCookie('token', { maxAge: 0 }).send({ success: true })
         })
 
         // Blogs Related Apis 
-        app.get('/blogs', async(req, res) => {
+        app.get('/blogs', async (req, res) => {
             const cursor = blogsCollection.find();
             const result = await cursor.toArray();
             res.send(result);
         })
 
-        app.get('/blogs/:id', async(req, res) => {
+        app.get('/blogs/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const result = await blogsCollection.findOne(query);
             res.send(result);
         })
 
-        app.post('/blogs', async(req, res) => {
+        app.post('/blogs', async (req, res) => {
             const newBlog = req.body;
             const result = await blogsCollection.insertOne(newBlog);
             res.send(result);
         })
 
         // Wishlist Related Apis 
-        app.post('/wishlist', async(req, res) => {
+        app.post('/wishlist', async (req, res) => {
             const wishlistBlog = req.body;
             const result = await wishlistCollection.insertOne(wishlistBlog);
+            res.send(result);
+        })
+
+        app.get('/wishlist', async (req, res) => {
+            let query = {};
+            if(req.query?.email){
+                query = { email: req.query.email }
+            }
+            const result = await wishlistCollection.find(query).toArray();
             res.send(result);
         })
 
