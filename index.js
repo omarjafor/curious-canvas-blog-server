@@ -87,6 +87,13 @@ async function run() {
             res.send(result);
         })
 
+        // Wishlist Related Apis 
+        app.post('/wishlist', async(req, res) => {
+            const wishlistBlog = req.body;
+            const result = await wishlistCollection.insertOne(wishlistBlog);
+            res.send(result);
+        })
+
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
