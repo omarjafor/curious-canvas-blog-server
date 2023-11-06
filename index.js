@@ -87,6 +87,14 @@ async function run() {
             res.send(result);
         })
 
+        app.put('/blogs/:id', async(req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id)}
+            const options = { upsert: true }
+            const updatedBlog = req.body;
+            console.log(updatedBlog);
+        })
+
         // Wishlist Related Apis 
         app.post('/wishlist', async (req, res) => {
             const wishlistBlog = req.body;
