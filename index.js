@@ -92,7 +92,19 @@ async function run() {
             const filter = { _id: new ObjectId(id)}
             const options = { upsert: true }
             const updatedBlog = req.body;
-            console.log(updatedBlog);
+            const blog = {
+                $set: {
+                    blogTitle: updatedBlog.blogTitle,
+                    blogCategory: updatedBlog.blogCategory,
+                    longDescription: updatedBlog.longDescription,
+                    shortDescription: updatedBlog.shortDescription,
+                    rating: updatedBlog.rating,
+                    photo: updatedBlog.photo,
+                    timeStamp: updatedBlog.timeStamp
+                }
+            }
+            const result = await blogsCollection.updateOne(filter, blog, options);
+            res.send(result);
         })
 
         // Wishlist Related Apis 
