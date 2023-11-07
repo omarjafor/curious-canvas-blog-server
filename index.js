@@ -19,7 +19,6 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.21hcnfr.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -72,6 +71,12 @@ async function run() {
         })
 
         // Blogs Related Apis 
+        app.get('/allblogs', async(req, res) => {
+            const cursor = blogsCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
         app.get('/blogs', async (req, res) => {
             const cursor = blogsCollection.find().sort({ _id: -1 }).limit(6);
             const result = await cursor.toArray();
@@ -116,7 +121,10 @@ async function run() {
             res.send(result);
         })
 
-        app.put('/blogs/:id', async(req, res) => {
+        app.put('/blogs/:id', verifyToken, async(req, res) => {
+            if (req.body.email !== req.user.email) {
+                return res.status(403).send({ message: 'Forbidden Access' })
+            }
             const id = req.params.id;
             const filter = { _id: new ObjectId(id)}
             const options = { upsert: true }
@@ -143,7 +151,10 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/wishlist', async (req, res) => {
+        app.get('/wishlist', verifyToken, async (req, res) => {
+            if (req.query.email !== req.user.email) {
+                return res.status(403).send({ message: 'Forbidden Access' })
+            }
             let query = {};
             if(req.query?.email){
                 query = { email: req.query.email }
