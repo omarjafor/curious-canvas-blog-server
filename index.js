@@ -73,7 +73,7 @@ async function run() {
 
         // Blogs Related Apis 
         app.get('/blogs', async (req, res) => {
-            const cursor = blogsCollection.find();
+            const cursor = blogsCollection.find().sort({ _id: -1 }).limit(6);
             const result = await cursor.toArray();
             res.send(result);
         })
@@ -82,6 +82,31 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await blogsCollection.findOne(query);
+            res.send(result);
+        })
+
+        app.get('/featuredblog', async (req, res) => {
+            const pipeline = [
+                {
+                    $addFields: {
+                        descriptionLength: { $strLenCP: "$longDescription" }
+                    }
+                },
+                {
+                    $sort: { descriptionLength: -1 }
+                },
+                {
+                    $limit: 10
+                },
+                {
+                    $project: {
+                        _id: 0, 
+                        descriptionLength: 0 
+                    }
+                }
+            ];
+            const cursor = blogsCollection.aggregate(pipeline);
+            const result = await cursor.toArray();
             res.send(result);
         })
 
