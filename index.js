@@ -130,6 +130,14 @@ async function run() {
             res.send(result);
         })
 
+        // Comments Related Apis 
+        app.post('/comments', async(req, res) => {
+            const comment = req.body;
+            const result = await commentsCollection.insertOne(comment);
+            res.send(result);
+        })
+
+
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
