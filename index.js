@@ -115,7 +115,10 @@ async function run() {
             res.send(result);
         })
 
-        app.post('/blogs', async (req, res) => {
+        app.post('/blogs', verifyToken, async (req, res) => {
+            if (req.body.email !== req.user.email) {
+                return res.status(403).send({ message: 'Forbidden Access' })
+            }
             const newBlog = req.body;
             const result = await blogsCollection.insertOne(newBlog);
             res.send(result);
@@ -171,7 +174,10 @@ async function run() {
         })
 
         // Comments Related Apis 
-        app.post('/comments', async(req, res) => {
+        app.post('/comments', verifyToken, async(req, res) => {
+            if (req.body.email !== req.user.email) {
+                return res.status(403).send({ message: 'Forbidden Access' })
+            }
             const comment = req.body;
             const result = await commentsCollection.insertOne(comment);
             res.send(result);
