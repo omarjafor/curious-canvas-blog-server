@@ -10,8 +10,8 @@ const port = process.env.PORT || 5000;
 app.use(cors({
     origin: [
         'http://localhost:5173',
-        'https://blog-website-omarjafor.web.app',
-        'https://blog-website-omarjafor.firebaseapp.com'
+        'https://curious-canvas.web.app',
+        'https://curious-canvas.firebaseapp.com'
     ],
     credentials: true
 }));
